@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const {MongoClient, ObjectId} = require('mongodb');
 const bodyParser = require('body-parser');
+const transporter = require('./config/email');
+const { generateConfirmationEmail } = require('./utils/emailTemplate');
 const PORT = process.env.PORT || 3001;
 const MONGO_URI = process.env.MONGO_URI;
 const app = express();
@@ -323,5 +325,50 @@ app.get('/api/payments', async (req, res) => {
     res.json(payments);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch payments.' });
+  }
+});
+
+// EMAIL
+app.post('/api/send-confirmation-email', async (req, res) => {
+  try {
+    const { customerEmail, customerName, appointmentDetails } = req.body;
+    
+    // Validate required fields
+    if (!customerEmail || !customerName || !appointmentDetails) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: customerEmail, customerName, appointmentDetails'
+      });
+    }
+
+    // Generate email HTML
+    const emailHtml = generateConfirmationEmail(customerName, appointmentDetails);
+    
+    // Email options
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'nxlbeautybar@gmail.com',
+      to: customerEmail,
+      subject: `Appointment Confirmed - NXL Beauty Bar | ${appointmentDetails.date} at ${appointmentDetails.time}`,
+      html: emailHtml
+    };
+
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('Email sent successfully:', info.messageId);
+    
+    res.json({
+      success: true,
+      message: 'Confirmation email sent successfully',
+      messageId: info.messageId
+    });
+
+  } catch (error) {
+    console.error('Email sending error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send confirmation email',
+      details: error.message
+    });
   }
 });
