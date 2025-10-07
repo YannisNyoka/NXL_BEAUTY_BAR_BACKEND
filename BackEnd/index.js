@@ -223,6 +223,52 @@ app.get('/api/appointments', async (req, res) => {
   }
 });
 
+// DELETE APPOINTMENT
+app.delete('/api/appointments/:appointmentId', async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    
+    if (!ObjectId.isValid(appointmentId)) {
+      return res.status(400).json({ message: 'Invalid appointment ID.' });
+    }
+    
+    const result = await appointmentsCollection.deleteOne({ _id: new ObjectId(appointmentId) });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Appointment not found.' });
+    }
+    
+    res.status(200).json({ message: 'Appointment cancelled successfully.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to cancel appointment.' });
+  }
+});
+
+// UPDATE APPOINTMENT
+app.put('/api/appointments/:appointmentId', async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const updateData = req.body;
+    
+    if (!ObjectId.isValid(appointmentId)) {
+      return res.status(400).json({ message: 'Invalid appointment ID.' });
+    }
+    
+    const result = await appointmentsCollection.updateOne(
+      { _id: new ObjectId(appointmentId) },
+      { $set: updateData }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'Appointment not found.' });
+    }
+    
+    res.status(200).json({ message: 'Appointment updated successfully.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update appointment.' });
+  }
+});
+
 // SERVICES
 app.post('/api/services', async (req, res) => {
   try {
