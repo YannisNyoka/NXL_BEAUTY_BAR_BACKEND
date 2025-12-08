@@ -409,6 +409,23 @@ app.delete('/api/services/:id/delete', basicAuth, async (req, res) => {
   }
 });
 
+// Alias: update service via POST /update (compatibility with existing frontend)
+app.post('/api/services/:id/update', basicAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const update = req.body;
+    const result = await servicesCollection.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: { ...update, updatedAt: new Date() } },
+      { returnDocument: 'after' }
+    );
+    if (!result.value) return res.status(404).json({ error: 'Service not found' });
+    return res.json(result.value);
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to update service' });
+  }
+});
+
 // AVAILABILITY
 // Get availability (blocked slots). Filter by date/employeeId if provided. (public)
 app.get('/api/availability', async (req, res) => {
@@ -432,6 +449,59 @@ app.post('/api/availability', basicAuth, async (req, res) => {
       return res.status(400).json({ error: 'date, time, employeeId are required' });
     }
     // Avoid duplicate blocks
+    const existing = await availabilityCollection.findOne({ date, time, employeeId });
+    if (existing) return res.status(409).json({ error: 'Slot already blocked' });
+
+    const slot = { date, time, employeeId, reason: reason || null, createdAt: new Date() };
+    const result = await availabilityCollection.insertOne(slot);
+    return res.status(201).json({ ...slot, _id: result.insertedId });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to create availability slot' });
+  }
+});
+
+// Aliases for availability creation to match frontend calls
+app.post('/api/availability/create', basicAuth, async (req, res) => {
+  try {
+    const { date, time, employeeId, reason } = req.body;
+    if (!date || !time || !employeeId) {
+      return res.status(400).json({ error: 'date, time, employeeId are required' });
+    }
+    const existing = await availabilityCollection.findOne({ date, time, employeeId });
+    if (existing) return res.status(409).json({ error: 'Slot already blocked' });
+
+    const slot = { date, time, employeeId, reason: reason || null, createdAt: new Date() };
+    const result = await availabilityCollection.insertOne(slot);
+    return res.status(201).json({ ...slot, _id: result.insertedId });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to create availability slot' });
+  }
+});
+
+app.post('/api/availability/block', basicAuth, async (req, res) => {
+  try {
+    const { date, time, employeeId, reason } = req.body;
+    if (!date || !time || !employeeId) {
+      return res.status(400).json({ error: 'date, time, employeeId are required' });
+    }
+    const existing = await availabilityCollection.findOne({ date, time, employeeId });
+    if (existing) return res.status(409).json({ error: 'Slot already blocked' });
+
+    const slot = { date, time, employeeId, reason: reason || null, createdAt: new Date() };
+    const result = await availabilityCollection.insertOne(slot);
+    return res.status(201).json({ ...slot, _id: result.insertedId });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to create availability slot' });
+  }
+});
+
+// Root-level alias used by older frontend (/unavailable)
+app.post('/unavailable', basicAuth, async (req, res) => {
+  try {
+    const { date, time, employeeId, reason } = req.body;
+    if (!date || !time || !employeeId) {
+      return res.status(400).json({ error: 'date, time, employeeId are required' });
+    }
     const existing = await availabilityCollection.findOne({ date, time, employeeId });
     if (existing) return res.status(409).json({ error: 'Slot already blocked' });
 
