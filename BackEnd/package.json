@@ -7,7 +7,14 @@
     "dev": "nodemon index.js",
     "build": "vite build",
     "preview": "vite preview",
-    "postinstall": "node ./scripts/patch-side-channel.js"
+    "postinstall": "node ./scripts/patch-side-channel.js",
+    "test": "mocha test/**/*.test.js --timeout 10000",
+    "test:get": "mocha test/get-endpoints.test.js --timeout 10000",
+    "test:post": "mocha test/post-endpoints.test.js --timeout 10000",
+    "test:report": "mocha test/**/*.test.js --timeout 15000 --reporter mochawesome --reporter-options reportDir=test-reports,reportFilename=test-report,reportTitle='NXL Beauty Bar API Tests',reportPageTitle='API Test Results',charts=true,code=true",
+    "test:report:get": "mocha test/get-endpoints.test.js --timeout 15000 --reporter mochawesome --reporter-options reportDir=test-reports,reportFilename=get-endpoints-report,reportTitle='GET Endpoints Tests',charts=true",
+    "test:report:post": "mocha test/post-endpoints.test.js --timeout 15000 --reporter mochawesome --reporter-options reportDir=test-reports,reportFilename=post-endpoints-report,reportTitle='POST Endpoints Tests',charts=true",
+    "test:open-report": "start test-reports/test-report.html"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",
@@ -24,7 +31,13 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.3",
+    "chai": "^6.2.0",
+    "chai-http": "^5.1.2",
+    "mocha": "^11.7.4",
+    "mochawesome": "^7.1.4",
+    "mochawesome-report-generator": "^6.3.0",
     "nodemon": "^3.0.0",
+    "supertest": "^7.1.4",
     "vite": "^7.1.6"
   }
 }

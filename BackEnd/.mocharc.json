@@ -1,0 +1,27 @@
+{
+  "timeout": 15000,
+  "reporter": "mochawesome",
+  "reporterOptions": {
+    "reportDir": "test-reports",
+    "reportFilename": "nxl-beauty-bar-test-report",
+    "reportTitle": "NXL Beauty Bar API Test Suite",
+    "reportPageTitle": "NXL Beauty Bar - API Test Results",
+    "charts": true,
+    "code": true,
+    "autoOpen": false,
+    "overwrite": true,
+    "json": true,
+    "showPassed": true,
+    "showFailed": true,
+    "showPending": true,
+    "showSkipped": false,
+    "enableCharts": true,
+    "enableCode": true,
+    "dev": false,
+    "assetsDir": "assets",
+    "jsonFile": "test-results.json",
+    "htmlFile": "test-results.html"
+  },
+
+  "recursive": true
+}
