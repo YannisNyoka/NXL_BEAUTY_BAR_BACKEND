@@ -385,6 +385,30 @@ app.delete('/api/services/:id', basicAuth, async (req, res) => {
   }
 });
 
+// Get a single service by id (public)
+app.get('/api/services/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const service = await servicesCollection.findOne({ _id: new ObjectId(id) });
+    if (!service) return res.status(404).json({ error: 'Service not found' });
+    return res.json(service);
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to fetch service' });
+  }
+});
+
+// Delete service using /delete suffix to support existing frontend
+app.delete('/api/services/:id/delete', basicAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await servicesCollection.deleteOne({ _id: new ObjectId(id) });
+    if (!result.deletedCount) return res.status(404).json({ error: 'Service not found' });
+    return res.json({ message: 'Service deleted' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to delete service' });
+  }
+});
+
 // AVAILABILITY
 // Get availability (blocked slots). Filter by date/employeeId if provided. (public)
 app.get('/api/availability', async (req, res) => {
