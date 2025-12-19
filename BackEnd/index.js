@@ -101,6 +101,7 @@ app.post('/api/user/signin', async (req, res) => {
 // ... User Signin code ...
 });
 
+// GET users (require auth)
 app.get('/api/users', basicAuth, async (req, res) => {
 // ... Get Users code ...
 });
@@ -109,9 +110,22 @@ app.get('/api/users', basicAuth, async (req, res) => {
 //-------------------------------------------
 // APPOINTMENTS
 //-------------------------------------------
-// ... Appointment CRUD routes ...
 
-// CREATE appointment
+// GET all appointments - NO auth required
+app.get('/api/appointments', async (req, res) => {
+  try {
+    const list = await appointmentsCollection
+      .find({})
+      .sort({ date: 1, time: 1 })
+      .toArray();
+
+    res.json({ success: true, data: list });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Failed to load appointments' });
+  }
+});
+
+// POST appointment - require auth
 app.post('/api/appointments', basicAuth, async (req, res) => {
   try {
     const { userId, userName, date, time, serviceIds, totalPrice, employeeId } = req.body;
@@ -135,21 +149,7 @@ app.post('/api/appointments', basicAuth, async (req, res) => {
   }
 });
 
-// GET all appointments (public)
-app.get('/api/appointments', async (req, res) => {
-  try {
-    const list = await appointmentsCollection
-      .find({})
-      .sort({ date: 1, time: 1 })
-      .toArray();
-
-    res.json({ success: true, data: list });
-  } catch (err) {
-    res.status(500).json({ success: false, error: 'Failed to load appointments' });
-  }
-});
-
-// DELETE appointment
+// DELETE appointment - require auth
 app.delete('/api/appointments/:id', basicAuth, async (req, res) => {
   const id = req.params.id;
   
@@ -163,7 +163,7 @@ app.delete('/api/appointments/:id', basicAuth, async (req, res) => {
   res.json({ success: true, message: "Appointment deleted" });
 });
 
-// UPDATE appointment
+// UPDATE appointment - require auth
 app.put('/api/appointments/:id', basicAuth, async (req, res) => {
   const id = req.params.id;
 
@@ -187,7 +187,7 @@ app.put('/api/appointments/:id', basicAuth, async (req, res) => {
 // SERVICES (MATCHED EXACTLY TO FRONTEND)
 //-------------------------------------------
 
-// GET all services (public, NO auth required)
+// GET all services - NO auth required
 app.get('/api/services', async (req, res) => {
   try {
     const services = await servicesCollection.find({}).toArray(); 
@@ -212,7 +212,7 @@ app.get('/api/services', async (req, res) => {
   }
 });
 
-// POST create new service (require auth)
+// POST create new service - require auth
 app.post('/api/services', basicAuth, async (req, res) => {
   try {
     // Frontend sends duration as 'durationMinutes' or just 'duration' in handleServiceAdd
@@ -255,7 +255,7 @@ app.post('/api/services', basicAuth, async (req, res) => {
   }
 });
 
-// PUT update service (require auth)
+// PUT update service - require auth
 app.put('/api/services/:id', basicAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -307,7 +307,7 @@ app.put('/api/services/:id', basicAuth, async (req, res) => {
   }
 });
 
-// DELETE service (require auth)
+// DELETE service - require auth
 app.delete('/api/services/:id', basicAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -344,7 +344,7 @@ app.delete('/api/services/:id', basicAuth, async (req, res) => {
 // AVAILABILITY (MATCHED EXACTLY TO FRONTEND)
 //-------------------------------------------
 
-// GET all availability (public, NO auth required)
+// GET all availability - NO auth required
 app.get('/api/availability', async (req, res) => {
   try {
     const { date, stylist } = req.query;
@@ -371,7 +371,7 @@ app.get('/api/availability', async (req, res) => {
   }
 });
 
-// POST create unavailable slot (require auth)
+// POST create unavailable slot - require auth
 app.post('/api/availability', basicAuth, async (req, res) => {
   try {
     // Frontend sends date as ISO string (YYYY-MM-DD), time as string (09:00 am), and stylistName
@@ -422,7 +422,7 @@ app.post('/api/availability', basicAuth, async (req, res) => {
   }
 });
 
-// DELETE unavailable slot (require auth)
+// DELETE unavailable slot - require auth
 app.delete('/api/availability/:id', basicAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -458,12 +458,14 @@ app.delete('/api/availability/:id', basicAuth, async (req, res) => {
 //-------------------------------------------
 // EMPLOYEES & PAYMENTS
 //-------------------------------------------
-// ... Employee & Payment routes ...
+
+// GET employees (require auth)
 app.get('/api/employees', basicAuth, async (req, res) => {
   const employees = await employeesCollection.find().toArray();
   res.json(employees);
 });
 
+// POST employee (require auth)
 app.post('/api/employees', basicAuth, async (req, res) => {
   const employee = { ...req.body, createdAt: new Date() };
   const result = await employeesCollection.insertOne(employee);
@@ -471,11 +473,13 @@ app.post('/api/employees', basicAuth, async (req, res) => {
   res.status(201).json({ employeeId: result.insertedId });
 });
 
+// GET payments (require auth)
 app.get('/api/payments', basicAuth, async (req, res) => {
   const payments = await paymentsCollection.find().toArray();
   res.json(payments);
 });
 
+// POST payment (require auth)
 app.post('/api/payments', basicAuth, async (req, res) => {
   const payment = { ...req.body, createdAt: new Date() };
 
