@@ -94,16 +94,16 @@ app.get('/api/ping', (req, res) => {
 // USER SIGNUP & SIGNIN (TBD: Apply Security Fixes)
 //-------------------------------------------
 app.post('/api/user/signup', async (req, res) => {
-// ... User Signup code ...
+  // ... User Signup code ...
 });
 
 app.post('/api/user/signin', async (req, res) => {
-// ... User Signin code ...
+  // ... User Signin code ...
 });
 
-// GET users (require auth)
+// GET users (admin-only, require auth)
 app.get('/api/users', basicAuth, async (req, res) => {
-// ... Get Users code ...
+  // ... Get Users code ...
 });
 
 
@@ -459,13 +459,13 @@ app.delete('/api/availability/:id', basicAuth, async (req, res) => {
 // EMPLOYEES & PAYMENTS
 //-------------------------------------------
 
-// GET employees (require auth)
+// GET employees (admin-only, require auth)
 app.get('/api/employees', basicAuth, async (req, res) => {
   const employees = await employeesCollection.find().toArray();
   res.json(employees);
 });
 
-// POST employee (require auth)
+// POST employee (admin-only, require auth)
 app.post('/api/employees', basicAuth, async (req, res) => {
   const employee = { ...req.body, createdAt: new Date() };
   const result = await employeesCollection.insertOne(employee);
@@ -473,13 +473,13 @@ app.post('/api/employees', basicAuth, async (req, res) => {
   res.status(201).json({ employeeId: result.insertedId });
 });
 
-// GET payments (require auth)
+// GET payments (admin-only, require auth)
 app.get('/api/payments', basicAuth, async (req, res) => {
   const payments = await paymentsCollection.find().toArray();
   res.json(payments);
 });
 
-// POST payment (require auth)
+// POST payment (admin-only, require auth)
 app.post('/api/payments', basicAuth, async (req, res) => {
   const payment = { ...req.body, createdAt: new Date() };
 
