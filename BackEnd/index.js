@@ -187,7 +187,7 @@ app.put('/api/appointments/:id', basicAuth, async (req, res) => {
 // SERVICES (MATCHED EXACTLY TO FRONTEND)
 //-------------------------------------------
 
-// GET all services (Normalization for frontend)
+// GET all services (public, NO auth required)
 app.get('/api/services', async (req, res) => {
   try {
     const services = await servicesCollection.find({}).toArray(); 
@@ -212,7 +212,7 @@ app.get('/api/services', async (req, res) => {
   }
 });
 
-// POST create new service
+// POST create new service (require auth)
 app.post('/api/services', basicAuth, async (req, res) => {
   try {
     // Frontend sends duration as 'durationMinutes' or just 'duration' in handleServiceAdd
@@ -255,7 +255,7 @@ app.post('/api/services', basicAuth, async (req, res) => {
   }
 });
 
-// PUT update service
+// PUT update service (require auth)
 app.put('/api/services/:id', basicAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -307,7 +307,7 @@ app.put('/api/services/:id', basicAuth, async (req, res) => {
   }
 });
 
-// DELETE service
+// DELETE service (require auth)
 app.delete('/api/services/:id', basicAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -344,7 +344,7 @@ app.delete('/api/services/:id', basicAuth, async (req, res) => {
 // AVAILABILITY (MATCHED EXACTLY TO FRONTEND)
 //-------------------------------------------
 
-// GET all availability (supports query filters for date/stylist)
+// GET all availability (public, NO auth required)
 app.get('/api/availability', async (req, res) => {
   try {
     const { date, stylist } = req.query;
@@ -371,7 +371,7 @@ app.get('/api/availability', async (req, res) => {
   }
 });
 
-// POST create unavailable slot
+// POST create unavailable slot (require auth)
 app.post('/api/availability', basicAuth, async (req, res) => {
   try {
     // Frontend sends date as ISO string (YYYY-MM-DD), time as string (09:00 am), and stylistName
@@ -422,7 +422,7 @@ app.post('/api/availability', basicAuth, async (req, res) => {
   }
 });
 
-// DELETE unavailable slot
+// DELETE unavailable slot (require auth)
 app.delete('/api/availability/:id', basicAuth, async (req, res) => {
   try {
     const { id } = req.params;
